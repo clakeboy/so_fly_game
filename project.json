@@ -10,6 +10,7 @@
 
     "jsList" : [
         "src/resource.js",
+        "src/FlyScene.js",
         "src/myApp.js"
     ]
 }
