@@ -1,15 +1,16 @@
 /**
  * Created by CLAKE on 2014/9/3.
  */
+
 var MyLayer = cc.Layer.extend({
     helloLabel:null,
     sprite:null,
 
-    init:function () {
+    init:function (color) {
 
         //////////////////////////////
         // 1. super init first
-        this._super();
+        this._super(color);
 
         /////////////////////////////
         // 2. add a menu item with "X" image, which is clicked to quit the program
@@ -46,15 +47,16 @@ var MyLayer = cc.Layer.extend({
         this.sprite.setAnchorPoint(0.5, 0.5);
         this.sprite.setPosition(size.width / 2, size.height / 2);
         this.sprite.setScale(size.height/this.sprite.getContentSize().height);
-        this.addChild(this.sprite, 0);
+//        this.addChild(this.sprite, 0);
+        this.setBackGroundColor(cc.color('#ffffff'));
     }
 });
 
 var FlyScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
-        var layer = new MyLayer();
+        var layer = new BackLayer();
         this.addChild(layer);
-        layer.init();
+        layer.init(cc.color('#FFFFFF'));
     }
 });
