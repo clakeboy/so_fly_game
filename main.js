@@ -12,7 +12,7 @@ cc.game.onStart = function(){
 
     //load resources
     cc.LoaderScene.preload(g_resources, function () {
-        cc.director.runScene(new MyScene());
+        cc.director.runScene(new FlyScene());
     }, this);
 };
 cc.game.run();
