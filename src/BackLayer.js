@@ -1,51 +1,31 @@
 /**
- * Created by clakeboy on 14-9-3.
+ * Created by CLAKE on 2014/9/3.
  */
-var MyLayer = cc.Layer.extend({
-    helloLabel:null,
-    sprite:null,
+var BackLayer = cc.LayerColor.extend({
+    ballDraw:null,
+    init:function(color) {
+        this._super(color);
+        var winSize = cc.director.getWinSize();
+        this.ballDraw = new cc.DrawNode();
+        this.addChild(this.ballDraw);
 
-    init:function () {
-
-        //////////////////////////////
-        // 1. super init first
-        this._super();
-
-        /////////////////////////////
-        // 2. add a menu item with "X" image, which is clicked to quit the program
-        //    you may modify it.
-        // ask director the window size
-        var size = cc.director.getWinSize();
-
-        // add a "close" icon to exit the progress. it's an autorelease object
-        var closeItem = cc.MenuItemImage.create(
-            s_CloseNormal,
-            s_CloseSelected,
-            function () {
-                cc.log("close");
-            },this);
-        closeItem.setAnchorPoint(0.5, 0.5);
-
-        var menu = new cc.Menu(closeItem);
-        menu.setPosition(0, 0);
-        this.addChild(menu, 1);
-        closeItem.setPosition(size.width - 20, 20);
-
-        /////////////////////////////
-        // 3. add your codes below...
-        // add a label shows "Hello World"
-        // create and initialize a label
-        this.helloLabel = new cc.LabelTTF("Hello World", "Impact", 38);
-        // position the label on the center of the screen
-        this.helloLabel.setPosition(size.width / 2, size.height - 40);
-        // add the label as a child to this layer
-        this.addChild(this.helloLabel, 5);
-
-        // add "Helloworld" splash screen"
-        this.sprite = cc.Sprite.create(s_HelloWorld);
-        this.sprite.setAnchorPoint(0.5, 0.5);
-        this.sprite.setPosition(size.width / 2, size.height / 2);
-        this.sprite.setScale(size.height/this.sprite.getContentSize().height);
-        this.addChild(this.sprite, 0);
+//        draw.drawCircle(cc.p(winSize.width / 2, winSize.height / 2), 50, cc.degreesToRadians(90), 50, true, 2, cc.color(0, 255, 255, 255));
+        this.ballDraw.drawDot(cc.p(winSize.width / 2, winSize.height / 2), 40, cc.color(this.randColor()));
+//        var move = cc.moveTo(4,cc.p(winSize.width,winSize.height),10);
+//        var move = cc.moveBy(4,cc.p(winSize.width/2-20,winSize.height/2-20),10);
+//        this.ballDraw.runAction(move);
+        this.schedule(this.c_update,0.1);
+    },
+    c_update:function(dt) {
+//        var winSize = cc.director.getWinSize();
+//        this.ballDraw.drawCircle(cc.p(winSize.width / 2, winSize.height / 2), 100, cc.degreesToRadians(90), 100, false, 6, cc.color(this.randColor()));
+//        this.ballDraw.clear();
+//        this.ballDraw.drawDot(cc.p(winSize.width / 2, winSize.height / 2), 40, cc.color(this.randColor()));
+        this.ballDraw.x +=1;
+        this.ballDraw.y +=2;
+        cc.log(this.ballDraw.x);
+    },
+    randColor:function () {
+        return '#'+('00000'+(Math.random()*0x1000000<<0).toString(16)).slice(-6);
     }
 });
