@@ -8,10 +8,14 @@ var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 var GameLayer = cc.Layer.extend({
     balls:[],
     space:null,
+    _addFrequent:0.3,
+    _dt:0,
     _debugNode:null,
     _mouseJoint:null,
     _mouseBody:null,
     _mouse:v(0,0),
+    _mouseHold:false,
+    _holdCall:null,
     ctor:function(){
         this._super();
         this.space = new cp.Space();
@@ -21,6 +25,7 @@ var GameLayer = cc.Layer.extend({
         this._super();
         this._mouseBody = new cp.Body(Infinity, Infinity);
         var space = this.space;
+
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.MOUSE,
             onMouseDown:function(event){
@@ -36,6 +41,9 @@ var GameLayer = cc.Layer.extend({
                         mouseJoint.maxForce = 50000;
                         mouseJoint.errorBias = Math.pow(1 - 0.15, 60);
                         space.addConstraint(mouseJoint);
+                    } else {
+                        self._mouseHold = true;
+                        self._dt = self._addFrequent+1;
                     }
                 }
             },
@@ -55,6 +63,7 @@ var GameLayer = cc.Layer.extend({
                     space.removeConstraint(self._mouseJoint);
                     self._mouseJoint = null;
                 }
+                self._mouseHold = false;
             }
         }), this);
 
@@ -63,7 +72,7 @@ var GameLayer = cc.Layer.extend({
 
 
         space.iterations = 60;
-        space.gravity = v(0, 0); //重方向和大小
+        space.gravity = v(0, -100); //重方向和大小
         space.sleepTimeThreshold = 0.5;
         space.collisionSlop = 0.5;
 
@@ -87,22 +96,34 @@ var GameLayer = cc.Layer.extend({
     addNewSprite:function(p) {
         var space = this.space;
         var radius = 20;
-        var mass = 1; //质量
+        var mass = 5; //质量
         var moment = cp.momentForCircle(mass, 0, radius, v(0, 0));//转动惯量
         var body = space.addBody(new cp.Body(mass, moment));
-        body.setPos(v(p.x, p.y));
-        body.setVel(v(10,0));
-        body.setAngle(cc.radiansToDegrees(45));
+
+        if (Math.random() > 0.5) {
+            body.setPos(v(p.x+25, p.y+25));
+            body.setVel(v(50,50));
+        } else {
+            body.setPos(v(p.x+(-25), p.y+25));
+            body.setVel(v(-50,50));
+        }
+
         var circle = space.addShape(new cp.CircleShape(body, radius, cp.vzero));
         circle.setElasticity(0.8); //弹性
         circle.setFriction(0.4); //摩擦
-        body.applyImpulse(v(100,50));
     },
     update:function(dt) {
         this.space.step(dt);
         var newPoint = v.lerp(this._mouseBody.p, this._mouse, 0.25);
         this._mouseBody.v = v.mult(v.sub(newPoint, this._mouseBody.p), 60);
         this._mouseBody.p = newPoint;
+        if (this._mouseHold) {
+            if (this._dt > this._addFrequent) {
+                this.addNewSprite(this._mouse);
+                this._dt = 0;
+            }
+            this._dt += dt;
+        }
     },
     addFloor : function() {
         var space = this.space;
