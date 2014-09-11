@@ -6,10 +6,11 @@
     "renderMode" : 0,
     "engineDir":"frameworks/cocos2d-x-html5",
 
-    "modules" : ["cocos2d"],
+    "modules" : ["cocos2d","box2d","chipmunk"],
 
     "jsList" : [
         "src/resource.js",
+        "src/GameLayer.js",
         "src/BackLayer.js",
         "src/FlyScene.js",
         "src/myApp.js"

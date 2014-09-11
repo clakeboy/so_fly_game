@@ -55,7 +55,7 @@ var MyLayer = cc.Layer.extend({
 var FlyScene = cc.Scene.extend({
     onEnter:function () {
         this._super();
-        var layer = new BackLayer();
+        var layer = new GameLayer();
         this.addChild(layer);
         layer.init(cc.color('#FFFFFF'));
     }
