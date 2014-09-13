@@ -1,15 +1,10 @@
-var s_HelloWorld = "HelloWorld.jpg";
-var s_CloseNormal = "CloseNormal.png";
-var s_CloseSelected = "CloseSelected.png";
-
+var s_bob_plist = "res/particle/bob.plist";
+var s_fire = "res/particle/fire.png";
 var g_resources = [
     //image
-    s_HelloWorld,
-    s_CloseNormal,
-    s_CloseSelected
-
+    s_fire,
     //plist
-
+    s_bob_plist
     //fnt
 
     //tmx
