@@ -1,29 +1,39 @@
 /**
  * Created by CLAKE on 2014/9/3.
  */
-var BackLayer = cc.LayerColor.extend({
-    ballDraw:null,
-    init:function(color) {
-        this._super(color);
-        var winSize = cc.director.getWinSize();
-        this.ballDraw = new cc.DrawNode();
-        this.addChild(this.ballDraw);
 
-//        draw.drawCircle(cc.p(winSize.width / 2, winSize.height / 2), 50, cc.degreesToRadians(90), 50, true, 2, cc.color(0, 255, 255, 255));
-//        this.ballDraw.drawDot(cc.p(winSize.width / 2, winSize.height / 2), 40, cc.color(this.randColor()));
-//        var move = cc.moveTo(4,cc.p(winSize.width,winSize.height),10);
-//        var move = cc.moveBy(4,cc.p(winSize.width/2-20,winSize.height/2-20),10);
-//        this.ballDraw.runAction(move);
-//        this.schedule(this.c_update,0.1);
+var g_backLayer;
+var BackLayer = cc.Layer.extend({
+    p_backHeight:null,
+    p_speed:-200,
+    ctor:function(){
+        this._super();
+        this.init();
     },
-    c_update:function(dt) {
-//        var winSize = cc.director.getWinSize();
-//        this.ballDraw.drawCircle(cc.p(winSize.width / 2, winSize.height / 2), 100, cc.degreesToRadians(90), 100, false, 6, cc.color(this.randColor()));
-//        this.ballDraw.clear();
-//        this.ballDraw.drawDot(cc.p(winSize.width / 2, winSize.height / 2), 40, cc.color(this.randColor()));
-//        this.ballDraw.x +=1;
-//        this.ballDraw.y +=2;
-//        cc.log(this.ballDraw.x);
+    init:function() {
+        this._super();
+        var back = cc.Sprite.create(res.s_back1);
+        back.setAnchorPoint(cc.p(0,0));
+        var backre = cc.Sprite.create(res.s_back2);
+        backre.setAnchorPoint(cc.p(0,0));
+        this.addChild(back);
+        this.addChild(backre);
+
+        this.p_backHeight = back.getContentSize().height;
+        backre.setPosition(cc.p(0,this.p_backHeight));
+
+        this.scheduleUpdate();
+    },
+    update:function(dt) {
+        cc.each(this.getChildren(),function(item,obj){
+            g_backLayer.moveBack(item,dt);
+        },null);
+    },
+    moveBack:function(item,dt){
+        item.setPositionY(item.getPositionY()+this.p_speed * dt);
+        if (item.getPositionY() < -this.p_backHeight) {
+            item.setPositionY(item.getPositionY()+this.p_backHeight*2-2);
+        }
     },
     randColor:function () {
         return '#'+('00000'+(Math.random()*0x1000000<<0).toString(16)).slice(-6);

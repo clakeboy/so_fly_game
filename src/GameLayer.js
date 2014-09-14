@@ -23,6 +23,7 @@ var GameLayer = cc.Layer.extend({
         this._super();
         this.space = new cp.Space();
         this.setupDebugNode();
+        this.init();
     },
     init:function(){
         this._super();
@@ -105,10 +106,11 @@ var GameLayer = cc.Layer.extend({
         this.scheduleUpdate();
     },
     addParticle:function(point){
-        var part = new cc.ParticleSystem(s_bob_plist);
-        part.duration = 0.5;
+        var part = new cc.ParticleSystem(s_bob_plist);//添加一个粒子特效
+        part.setScale(0.2);
+        part.duration = 0.5;//播放时间秒
         part.setPosition(point);
-        part.isAutoRemoveOnFinish(true);
+        part.setAutoRemoveOnFinish(true);//是否自动消除释放
         this.addChild(part);
     },
     setupDebugNode:function(){
@@ -149,8 +151,7 @@ var GameLayer = cc.Layer.extend({
             }
             this._dt += dt;
         }
-        var self = this;
-        this.space.reindexStatic();
+//        var self = this;
 //        this.space.eachBody(function(body){
 //            if (typeof body.isbig == 'undefined') {
 //                var lp = body.world2Local(self._ballBody.p);

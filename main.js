@@ -1,5 +1,5 @@
 cc.game.onStart = function(){
-    var designSize = cc.size(480, 800);
+    var designSize = cc.size(640, 960);
     var screenSize = cc.view.getFrameSize();
 
     if(!cc.sys.isNative && screenSize.height < 800){
