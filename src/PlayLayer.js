@@ -15,6 +15,8 @@ var PlayLayer = cc.Layer.extend({
     _mouseBody:null,
     _mouse:v(0,0),
     _mouseHold:false,
+    _holdMouse:v(0,0),
+    _oldPos:null,
     _holdCall:null,
     _ballBody:null,
     _eump:null,
@@ -27,28 +29,47 @@ var PlayLayer = cc.Layer.extend({
     },
     init:function(){
         this._super();
+        this._mouseBody = new cp.Body(Infinity, Infinity);
         var winSize = cc.director.getWinSize();
         var space = this.space;
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.MOUSE,
             onMouseDown:function(event){
+                var point = v(parseInt(event.getLocationX()),parseInt(event.getLocationY()));
                 var self = event.getCurrentTarget();
-                self._mouse = v(event.getLocationX(),event.getLocationY());
+                self._mouse = point;
                 self._mouseHold = true;
+                self._oldPos = self._plane.p;
+                if (!self._mouseJoint) {
+//                    self._mouseHold = true;
+//                    var body = self._plane;
+//                    var mouseJoint = self._mouseJoint = new cp.PinJoint(self._mouseBody, body, v(0,0), v(0,0));
+//
+////                    mouseJoint.maxForce = 50000;
+//                    space.addConstraint(mouseJoint);
+                }
             },
             onMouseMove:function(event){
+                var point = v(parseInt(event.getLocationX()),parseInt(event.getLocationY()));
                 var self = event.getCurrentTarget();
-                var point = v(event.getLocationX(),event.getLocationY());
                 if (self._mouseHold) {
-                    self._plane.p = self._plane.p.add(point.sub(self._mouse));
+//                    self._plane.setPos(v.add(old,add));
+                    self._plane.setPos(v.add(self._oldPos,v.sub(point,self._mouse)));
+                    space.reindexStatic();
                 }
+
             },
             onMouseUp: function(event){
                 //Add a new body/atlas sprite at the touched location
 //                var location = touches[0].getLocation();
 //                event.getCurrentTarget().addNewSprite(location);
+                var point = v(parseInt(event.getLocationX()),parseInt(event.getLocationY()));
                 var self = event.getCurrentTarget();
-                self._mouse = v(event.getLocationX(),event.getLocationY());
+                self._mouse = point;
+                if(self._mouseJoint) {
+                    space.removeConstraint(self._mouseJoint);
+                    self._mouseJoint = null;
+                }
                 self._mouseHold = false;
             }
         }), this);
@@ -94,14 +115,8 @@ var PlayLayer = cc.Layer.extend({
         var mass = 5; //质量
         var moment = cp.momentForCircle(mass, 0, radius, v(0, 0));//转动惯量
         var body = space.addBody(new cp.Body(mass, moment));
-        body.data = plane;
-        if (Math.random() > 0.5) {
-            body.setPos(v(p.x+25, p.y+25));
-            body.setVel(v(50,50));
-        } else {
-            body.setPos(v(p.x+(-25), p.y+25));
-            body.setVel(v(-50,50));
-        }
+        body.userData = plane;
+        body.setPos(p);
 
         var circle = space.addShape(new cp.CircleShape(body, radius, cp.vzero));
         circle.setElasticity(0.8); //弹性
@@ -115,6 +130,8 @@ var PlayLayer = cc.Layer.extend({
 //        circle.group = 1;
     },
     update:function(dt) {
+        this._mouseBody.p = this._mouse;
+
         this.space.step(dt);
     },
     addFloor : function() {
