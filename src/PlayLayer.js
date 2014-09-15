@@ -1,12 +1,11 @@
 /**
- * Created by clakeboy on 14-9-10.
+ * Created by CLAKE on 2014/9/16.
  */
-var PTM_RATIO = 32;
 var v = cp.v;
 var GRABABLE_MASK_BIT = 1<<31;
 var NOT_GRABABLE_MASK = ~GRABABLE_MASK_BIT;
 var BALL_COLL = 1;
-var GameLayer = cc.Layer.extend({
+var PlayLayer = cc.Layer.extend({
     balls:[],
     space:null,
     _addFrequent:0.3,
@@ -19,6 +18,7 @@ var GameLayer = cc.Layer.extend({
     _holdCall:null,
     _ballBody:null,
     _eump:null,
+    _plane:null,
     ctor:function(){
         this._super();
         this.space = new cp.Space();
@@ -27,46 +27,28 @@ var GameLayer = cc.Layer.extend({
     },
     init:function(){
         this._super();
-        this._mouseBody = new cp.Body(Infinity, Infinity);
+        var winSize = cc.director.getWinSize();
         var space = this.space;
-
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.MOUSE,
             onMouseDown:function(event){
-                var point = v(event.getLocationX(),event.getLocationY());
                 var self = event.getCurrentTarget();
-                self._mouse = point;
-                if (!self._mouseJoint) {
-                    var shape = space.pointQueryFirst(point, GRABABLE_MASK_BIT, cp.NO_GROUP);
-                    if(shape){
-                        var body = shape.body;
-                        var mouseJoint = self._mouseJoint = new cp.PivotJoint(self._mouseBody, body, v(0,0), body.world2Local(point));
-
-                        mouseJoint.maxForce = 50000;
-                        mouseJoint.errorBias = Math.pow(1 - 0.15, 60);
-                        space.addConstraint(mouseJoint);
-                    } else {
-                        self._mouseHold = true;
-                        self._dt = self._addFrequent+1;
-                    }
-                }
+                self._mouse = v(event.getLocationX(),event.getLocationY());
+                self._mouseHold = true;
             },
             onMouseMove:function(event){
-                var point = v(event.getLocationX(),event.getLocationY());
                 var self = event.getCurrentTarget();
-                self._mouse = point;
+                var point = v(event.getLocationX(),event.getLocationY());
+                if (self._mouseHold) {
+                    self._plane.p = self._plane.p.add(point.sub(self._mouse));
+                }
             },
             onMouseUp: function(event){
                 //Add a new body/atlas sprite at the touched location
 //                var location = touches[0].getLocation();
 //                event.getCurrentTarget().addNewSprite(location);
-                var point = v(event.getLocationX(),event.getLocationY());
                 var self = event.getCurrentTarget();
-                self._mouse = point;
-                if(self._mouseJoint) {
-                    space.removeConstraint(self._mouseJoint);
-                    self._mouseJoint = null;
-                }
+                self._mouse = v(event.getLocationX(),event.getLocationY());
                 self._mouseHold = false;
             }
         }), this);
@@ -81,26 +63,12 @@ var GameLayer = cc.Layer.extend({
         space.sleepTimeThreshold = 0.5;
         space.collisionSlop = 0.5;
 
-
-//        var radius = 50;
-//        var mass = Infinity; //质量
-//        var moment = cp.momentForCircle(mass, 0, radius, v(0, 0));
-////        var body = this._ballBody = new cp.StaticBody();
-//        var body = this._ballBody = space.addBody(new cp.Body(Infinity,Infinity));
-//        body.setPos(v(200,200));//初始坐标
-//        body.setAngVel(-1); //自旋转力
-//        body.isbig = true;
-//
-//
-//        var circle = space.addShape(new cp.CircleShape(body, radius, v(0, 0)));
-//        circle.setElasticity(0.5); //弹性
-//        circle.setFriction(0); //摩擦
-//        circle.setLayers(1);
-
+        this._plane = this.addNewSprite(v(winSize.width/2,winSize.height/3));
 
         var thisLayer = this;
         space.addCollisionHandler(BALL_COLL,BALL_COLL,function(abtr){
             thisLayer.addParticle(abtr.getContactPointSet()[0].point);
+            space.removeBody()
             return true;
         });
         this.scheduleUpdate();
@@ -143,32 +111,11 @@ var GameLayer = cc.Layer.extend({
         plane.setBody(body);
 
         this.addChild(plane);
+        return body;
 //        circle.group = 1;
     },
     update:function(dt) {
         this.space.step(dt);
-        var newPoint = v.lerp(this._mouseBody.p, this._mouse, 1);
-        this._mouseBody.v = v.mult(v.sub(newPoint, this._mouseBody.p), 150);
-        this._mouseBody.p = this._mouse;
-        if (this._mouseHold) {
-            if (this._dt > this._addFrequent) {
-                this.addNewSprite(this._mouse);
-                this._dt = 0;
-            }
-            this._dt += dt;
-        }
-//        var self = this;
-//        this.space.eachBody(function(body){
-//            if (typeof body.isbig == 'undefined') {
-//                var lp = body.world2Local(self._ballBody.p);
-//                var ag = cp.v.toangle(lp);
-//                var nv = cp.v.forangle(ag);
-//                body.resetForces();
-////                body.applyForce(v.mult(nv,100),nv);
-//                body.setVel(nv.mult(100));
-//            }
-//        });
-
     },
     addFloor : function() {
         var space = this.space;

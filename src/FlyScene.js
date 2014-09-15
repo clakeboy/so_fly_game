@@ -7,7 +7,7 @@ var FlyScene = cc.Scene.extend({
         this._super();
         g_backLayer = new BackLayer();
         this.addChild(g_backLayer,1);
-        var layer = new GameLayer();
+        var layer = new PlayLayer();
         this.addChild(layer,2);
     }
 });

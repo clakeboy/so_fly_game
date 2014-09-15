@@ -2,7 +2,8 @@ var res = {
     s_bob_plist : "res/particle/bob.plist",
     s_fire : "res/particle/fire.png",
     s_back1:"res/backimg/black1.jpg",
-    s_back2:"res/backimg/black2.jpg"
+    s_back2:"res/backimg/black2.jpg",
+    s_plane:"res/plane/LiPlane.png"
 };
 var s_bob_plist = "res/particle/bob.plist";
 var s_fire = "res/particle/fire.png";
@@ -11,6 +12,7 @@ var g_resources = [
     res.s_fire,
     res.s_back1,
     res.s_back2,
+    res.s_plane,
     //plist
     res.s_bob_plist
     //fnt
